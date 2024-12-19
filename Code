@@ -1,0 +1,182 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Send, User, Bot } from 'lucide-react';
+
+const CVChatbot = () => {
+  const personalInfo = {
+    name: "Mohamed Farid Amin",
+    phones: ["+971586409291", "+971503441020"],
+    email: "mohamed.fbaky@gmail.com",
+    linkedin: "linkedin.com/in/mohamedamin2025"
+  };
+
+  const presetQuestions = [
+    { id: 1, text: "What is your contact information?" },
+    { id: 2, text: "What is your current designation and total work experience?" },
+    { id: 3, text: "Describe significant challenges & achievements in your current role" },
+    { id: 4, text: "What are your key technical & soft skills?" },
+    { id: 5, text: "Why do you think you are the right fit for our company?" },
+    { id: 6, text: "Where do you see yourself in 5 years?" }
+  ];
+
+  const [messages, setMessages] = useState([
+    {
+      type: 'bot',
+      content: `Hello! I'm an HR interviewer. I can provide information about ${personalInfo.name}'s background and contact details. Please choose from the following questions or type your own:`
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const generateResponse = (input) => {
+    const query = input.toLowerCase();
+
+    if (query.includes('contact') || query.includes('phone') || query.includes('email')) {
+      return `Contact details:\nPhone: ${personalInfo.phones[0]} / ${personalInfo.phones[1]}\nEmail: ${personalInfo.email}\nLinkedIn: ${personalInfo.linkedin}`;
+    }
+
+    if (query.includes('name') || query.includes('who')) {
+      return `My name is ${personalInfo.name}. I'm a Contact Centre Supervisor with extensive experience in operations management.`;
+    }
+
+    if (query.includes('designation') || query.includes('experience') || query.includes('current')) {
+      return "I'm currently an Operations Supervisor at Teleperformance Dubai with 10+ years of experience in contact center operations, specializing in shopping malls operations and loyalty programs.";
+    }
+
+    if (query.includes('challenge') || query.includes('achievement')) {
+      return "Key achievements: Successfully transitioned projects from previous providers, implemented cost-saving solutions ($29,000 annually through escalation platform, $22,000 via BI dashboard), recognized as Most Engaged Ambassador 2023, and awarded Top Achiever Supervisor Q4 2023.";
+    }
+
+    if (query.includes('skill') || query.includes('technical')) {
+      return "Technical skills: Expert in MS Office, Advanced Power BI, COPC standards. Soft skills: Leadership, problem-solving, team management, multilingual communication (English & Arabic), and process optimization.";
+    }
+
+    if (query.includes('right fit') || query.includes('why should')) {
+      return "My experience in contact center operations, proven track record in cost optimization, and expertise in performance management align perfectly with contact center operations. I've demonstrated success in similar environments, consistently exceeding targets and implementing innovative solutions.";
+    }
+
+    if (query.includes('5 years') || query.includes('future')) {
+      return "I aim to advance into a senior operations management role, leading larger teams and implementing organization-wide improvements. I'm particularly interested in developing innovative solutions using data analytics and AI to enhance customer experience.";
+    }
+
+    if (query.includes('thank')) {
+      return "You're welcome! Feel free to ask any other questions.";
+    }
+
+    return `I can tell you about ${personalInfo.name}'s experience, achievements, or contact information. What would you like to know?`;
+  };
+
+  const handleQuestionClick = (question) => {
+    const updatedMessages = [
+      ...messages,
+      { type: 'user', content: question },
+      { type: 'bot', content: generateResponse(question) }
+    ];
+    setMessages(updatedMessages);
+  };
+
+  const handleClick = () => {
+    if (!inputValue.trim()) return;
+    setIsLoading(true);
+    const updatedMessages = [
+      ...messages,
+      { type: 'user', content: inputValue },
+    ];
+    setMessages(updatedMessages);
+    setTimeout(() => {
+      setMessages([...updatedMessages, { type: 'bot', content: generateResponse(inputValue) }]);
+      setInputValue('');
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
+  return (
+    <div className="min-h-[600px] w-full max-w-2xl mx-auto p-4">
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="text-xl text-center">HR Interview Assistant</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col h-[500px]">
+            <div className="mb-4">
+              <div className="grid grid-cols-1 gap-2">
+                {presetQuestions.map((question) => (
+                  <Button
+                    key={question.id}
+                    variant="outline"
+                    className="text-left justify-start h-auto py-2"
+                    onClick={() => handleQuestionClick(question.text)}
+                  >
+                    {question.text}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <ScrollArea className="flex-grow mb-4 p-4">
+              <div className="space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`flex items-start space-x-2 max-w-[80%] ${
+                      message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
+                    }`}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100">
+                        {message.type === 'user' ? 
+                          <User className="h-5 w-5" /> : 
+                          <Bot className="h-5 w-5" />
+                        }
+                      </div>
+                      <div className={`rounded-lg px-4 py-2 ${
+                        message.type === 'user' ? 
+                        'bg-blue-500 text-white' : 
+                        'bg-gray-100'
+                      } whitespace-pre-line`}>
+                        {message.content}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
+            <div className="flex gap-2 mt-auto">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your question..."
+                className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Button onClick={handleClick} className="px-4">
+                {isLoading ? '...' : <Send className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default CVChatbot;
