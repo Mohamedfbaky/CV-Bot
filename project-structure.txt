@@ -1,0 +1,26 @@
+cv-chatbot/
+├── README.md
+├── .gitignore
+├── package.json
+├── next.config.js
+├── postcss.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── components.json
+├── public/
+│   └── favicon.ico
+└── src/
+    ├── app/
+    │   ├── layout.tsx
+    │   └── page.tsx
+    ├── components/
+    │   ├── ui/
+    │   │   ├── button.tsx
+    │   │   ├── card.tsx
+    │   │   └── scroll-area.tsx
+    │   └── chatbot/
+    │       ├── chatbot-utils.ts
+    │       ├── CVChatbot.tsx
+    │       └── FloatingChatbot.tsx
+    └── styles/
+        └── globals.css
